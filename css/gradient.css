@@ -1,0 +1,112 @@
+:root {
+  --borderWidth: 1px;
+  --borderRadius: 50px;
+  --width: 200px;
+  --height: 200px;
+  --hue: 316;
+  --hueOffset: 102;
+  --level: 50%;
+  --brightness: 57%;
+  --gradient: radial-gradient(
+    circle,
+    hsl(var(--hue), 100%, var(--brightness)) 0%,
+    hsl(calc(var(--hue) + var(--hueOffset)), 100%, var(--level)) 100%
+  );
+  --duration: 0.4s;
+  --fraction: calc(var(--width) / (var(--width) + var(--height)));
+}
+
+#mapPortal {
+  padding: 5px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 10;
+  width: var(--width);
+  height: var(--width);
+  margin: -100px 0 0 -100px;
+  border-radius:50%;
+  pointer-events: none;
+}
+
+#mapPortalBorder {
+  padding: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  width: var(--width);
+  height: var(--width);
+  margin: -105px 0 0 -105px;
+  border-radius: 50%;
+  -webkit-mask-image: radial-gradient(
+    circle farthest-side at center,
+    transparent calc(var(--width) * 0.5 - var(--borderWidth)),
+    white calc(var(--width) * 0.5 - var(--borderWidth))
+  );
+  mask-image: radial-gradient(
+    circle farthest-side at center,
+    transparent calc(var(--width) * 0.5 - var(--borderWidth)),
+    white calc(var(--width) * 0.5 - var(--borderWidth))
+  );
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  pointer-events: none;
+}
+
+.gradient-border {
+  background: transparent;
+  position: relative;
+}
+
+.gradient-border:after {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--borderWidth));
+  left: calc(-1 * var(--borderWidth));
+  height: calc(100% + var(--borderWidth) * 2);
+  width: calc(100% + var(--borderWidth) * 2);
+  background: var(--gradient);
+  border-radius: calc(2 * var(--borderRadius));
+  -webkit-animation: animatedgradient var(--duration) ease-in-out infinite;
+  animation: animatedgradient var(--duration) ease-in-out infinite;
+  background-size: 200% 200%;
+}
+
+@-webkit-keyframes animatedgradient {
+  0% {
+    background-position: 0% 0%;
+  }
+  calc(0.5 * var(--fraction)) {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  calc(0.5 + 0.5 * var(--fraction)) {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes animatedgradient {
+  0% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}

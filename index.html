@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Portal</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+<link rel="stylesheet" type="text/css" href="./css/mapstyle.css" />
+<link rel="stylesheet" type="text/css" href="./css/gradient.css" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css" rel="stylesheet" />
+<style>
+
+body {
+    font-family: sans-serif;
+}
+
+#mapWrap, .credit {
+    width:100%;
+    display: block;
+    font-family: sans-serif;
+    color:#555;
+    max-width:1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.credit {
+    line-height: 6px;
+    font-size: 12px;
+    margin-top:20px;
+    color:#888;
+}
+
+.credit a {
+    text-decoration:none;
+    color: coral;
+}
+
+</style>
+</head>
+<body>
+<div id="mapWrap">
+    <div class="column left">
+        <h2>Mapbox Portal</h2>
+        <p>Use <a href="https://docs.mapbox.com/mapbox-gl-js/api/" target="_blank">Mapbox GL JS</a> to glimpse into another dimension.</p>
+        <div id="animatePeaks">Antipode Teleport</div>
+    </div>
+    <div class="column right">
+        <div id="mapPortal"></div>
+        <div id="mapPortalBorder" class="gradient-border"></div>
+        <div id="map"></div>
+    </div>
+</div>
+<div class="credit">
+    <!-- <p>Data:</p> -->
+    <p>By: <a href="http://www.mapto.ca/" target="_blank">MapTO</a></p>
+    <p>Code: <a href="https://github.com/willymaps/portal" target="_blank">Github</a></p>
+</div>
+
+<script>
+var currentZoom = 0;
+
+document.getElementById("animatePeaks").addEventListener("click", displayPeaks);
+
+mapboxgl.accessToken = 'pk.eyJ1Ijoid2lsbGlhbWJlbmRhdmlzIiwiYSI6IlVrb3BGVzQifQ.jeHxDCnpXXvAXKfAFEYG-A';
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/light-v10',
+    center: [-5.372740, 35.998872],
+    zoom:6
+});
+
+var mapPortal = new mapboxgl.Map({
+    container: 'mapPortal',
+    style: 'mapbox://styles/mapbox/dark-v10',
+    center: [-5.372740, 35.998872],
+    zoom:6,
+    interactive: false
+});
+
+mapPortal.on('load', function() {
+
+    bgAnimation();
+
+});
+
+map.on('move', function() {
+
+    let mapCenter = map.getCenter();
+    let mapZoom = map.getZoom();
+    let mapBearing = map.getBearing();
+    let mapPitch = map.getPitch();
+
+    mapPortal.setCenter(mapCenter);
+    mapPortal.setZoom(mapZoom);
+    mapPortal.setBearing(mapBearing);
+    mapPortal.setPitch(mapPitch);
+
+});
+
+// btn function
+function displayPeaks() {
+    bgAnimation();
+    teleport(); 
+}
+
+function teleport() {
+
+    map.dragPan.disable();
+    map.scrollZoom.disable();
+    map.doubleClickZoom.disable();
+    map.touchZoomRotate.disable();
+
+    let center = map.getCenter();
+    currentZoom = map.getZoom();
+
+    map.flyTo({center: center, zoom:17, speed:5});
+
+    map.on('zoomend', flyOut);
+}
+
+function flyOut() {
+
+    let center = map.getCenter();
+    console.log('flyout');
+    antipode(center);
+    
+    map.off('zoomend', flyOut);
+
+    map.dragPan.enable();
+    map.scrollZoom.enable();
+    map.doubleClickZoom.enable();
+    map.touchZoomRotate.enable();
+
+}
+
+function antipode(center) {
+    let newLat = center.lat*-1;
+    let newLng = 0;
+
+    if (center.lng >= 0) {
+        newLng = center.lng-180;
+    } else {
+        newLng = center.lng+180;
+    }
+
+    map.setCenter([newLng, newLat]);
+    mapPortal.setCenter([newLng, newLat]);
+
+    map.flyTo({zoom:currentZoom, speed:1});
+}
+
+function bgAnimation() {
+
+    let speed = 200;
+    let colorNum = 0;
+
+    mapLoop = setInterval(
+        function(){
+            colorNum++;
+            mapPortal.setPaintProperty('water', 'fill-color', getColor(colorNum));
+            if (colorNum > 6) {
+                colorNum = 0;
+            }
+        }, 
+        speed
+    );
+}
+
+
+function getColor(d) {
+    return d == 1 ? '#ffd725' :
+           d == 2  ? '#ffb749' :
+           d == 3  ? '#ff9d63' :
+           d == 4  ? '#ff837b' :
+           d == 5  ? '#ff6297' :
+           d == 6  ? '#ff4ea6' :
+                      '#ff9d63';
+}
+
+</script>
+</body>
+</html>
